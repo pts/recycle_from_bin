@@ -1,8 +1,9 @@
-#! /usr/bin/python
-#
-# recycle_from_bin.py: move files and rename from Windows Recycle Bin directory
+#! /bin/sh
 # by pts@fazekas.hu at Wed Mar 15 23:18:55 CET 2023
-#
+""":" # recycle_from_bin.py: move files and rename from Windows Recycle Bin directory
+type python3 >/dev/null 2>&1 && exec python3 -- "$0" ${1+"$@"}
+exec python -- "$0" ${1+"$@"}; exit 1
+"""
 # This script works in Python 3 (3.0 or later), Python 2.7, 2.6, 2.5 and
 # 2.4.
 #
