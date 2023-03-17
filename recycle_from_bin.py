@@ -117,7 +117,7 @@ def process_recursively(pathname, restore_target_dir):
 
 def main(argv):
   if len(argv) < 2 or argv[1] == '--help':
-    sys.stderr.write('Usage: %s <recycle-bin-dir>\n')
+    sys.stderr.write('Usage: %s <recycle-bin-dir>\n' % argv[0])
     sys.exit(1)
   i = 1
   while i < len(argv):
