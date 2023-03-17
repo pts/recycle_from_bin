@@ -159,10 +159,6 @@ def process_recycle_bin_pathname(pathname, restore_target_dir):
     restore_pathname = deleted_pathname
   else:
     restore_pathname = os.path.join(restore_target_dir, deleted_pathname)
-  sys.stderr.write('info: moving to: %s\n' % restore_pathname)
-  restore_dirname = os.path.dirname(restore_pathname)
-  if not os.path.isdir(pathname_to_os(restore_dirname)):
-    os.makedirs(pathname_to_os(restore_dirname))
   if os.path.exists(pathname_to_os(restore_pathname)):
     prefix, ext = os.path.splitext(restore_pathname)
     i = 1
@@ -171,6 +167,10 @@ def process_recycle_bin_pathname(pathname, restore_target_dir):
       if not os.path.exists(pathname_to_os(restore_pathname)):
         break
       i += 1
+  sys.stderr.write('info: moving to: %s\n' % restore_pathname)
+  restore_dirname = os.path.dirname(restore_pathname)
+  if not os.path.isdir(pathname_to_os(restore_dirname)):
+    os.makedirs(pathname_to_os(restore_dirname))
   os.rename(pathname_to_os(r_pathname), pathname_to_os(restore_pathname))
   os.remove(pathname_to_os(pathname))
 
