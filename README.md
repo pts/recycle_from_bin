@@ -24,3 +24,5 @@ Example usage on Windows:
 ```
   python recycle_from_bin.py "C:\$Recycle.Bin"
 ```
+
+The license of recycle_from_bin.py is GNU GPL 2.0 or newer.

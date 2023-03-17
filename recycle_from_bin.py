@@ -225,6 +225,9 @@ def process_recursively(pathname, restore_target_dir):
 def main(argv):
   if len(argv) < 2 or argv[1] == '--help':
     sys.stderr.write(
+        'recycle_from_bin.py: restore files from Windows Recycle Bin directory\n'
+        'This is free software, GNU GPL >=2.0. '
+        'There is NO WARRANTY. Use at your risk.\n'
         'Usage: %s [<flag> ...] <recycle-bin-dir>\nFlags:\n'
         '--restore-target-dir=<dir>: Restore recycled files to here.\n'
         % argv[0])
