@@ -3,12 +3,14 @@
 # recycle_from_bin.py: move files and rename from Windows Recycle Bin directory
 # by pts@fazekas.hu at Wed Mar 15 23:18:55 CET 2023
 #
-# This program works in Python 2.4, 2.5, 2.6 or 2.7 (not 3.x) on Linux,
-# macOS (and other Unix-like systems) and Windows. It fully supports
-# filenames containing any character (even non-ASCII) on all platforms. On
-# Windows, console messages use the UTF-8 encoding, so filenames with
-# non-ASCII characters are displayed incurrectly (but the files are
-# processed correctly).
+# This script works in Python 3 (3.0 or later), Python 2.7, 2.6, 2.5 and
+# 2.4.
+#
+# This script works on Linux, macOS (and other Unix-like systems) and
+# Windows. It fully supports filenames containing any character (even
+# non-ASCII) on all platforms. On Windows in Python 2.x, console messages
+# use the UTF-8 encoding, so filenames with non-ASCII characters are
+# displayed incurrectly (but the files are processed correctly).
 #
 
 import os
@@ -18,7 +20,43 @@ import struct
 import sys
 
 
-if sys.platform.startswith('win'):
+def maybe_encode_pathname(pathname):  # Python 2 only.
+  if not isinstance(pathname, unicode):
+    raise TypeError
+  filesystem_encoding = get_filesystem_encoding()
+  try:
+    return pathname.encode(filesystem_encoding)
+  except (UnicodeEncodeError, ValueError):
+    raise ValueError('Cannot encode pathname as %s: %r' % (filesystem_encoding, pathname))
+
+
+if sys.version_info >= (3, 0):  # No need for pathname encodings in Python 3.
+  def maybe_encode_pathname(pathname):
+    if not isinstance(pathname, str):
+      raise TypeError
+    return pathname
+
+  def pathname_to_os(pathname):
+    if not isinstance(pathname, str):
+      raise TypeError
+    return pathname
+
+  def pathnames_from_os(pathnames):
+    output = []
+    for pathname in pathnames:
+      if not isinstance(pathname, str):
+        raise TypeError
+      output.append(pathname)
+    return output
+
+  def pathname_from_argv(pathname):
+    if not isinstance(pathname, str):
+      raise TypeError
+    return pathname
+
+  def get_filesystem_encoding():
+    raise NotImplementedError
+elif sys.platform.startswith('win'):
   def pathname_to_os(pathname):
     if not isinstance(pathname, str):
       raise TypeError
@@ -42,11 +80,6 @@ if sys.platform.startswith('win'):
     return 'utf-8'  # Fake, to be used with pathname_to_os.
 
   # Console message will still be wrong (using UTF-8 encoding).
-
-  try:
-    os.lstat
-  except AttributeError:
-    os.lstat = os.stat  # Not needed in Python 2.6.
 else:
   def pathname_to_os(pathname):
     if not isinstance(pathname, str):
@@ -77,14 +110,11 @@ else:
     return _cache[0]
 
 
-def maybe_encode_pathname(pathname):
-  if not isinstance(pathname, unicode):
-    raise TypeError
-  filesystem_encoding = get_filesystem_encoding()
+if sys.platform.startswith('win'):
   try:
-    return pathname.encode(filesystem_encoding)
-  except (UnicodeEncodeError, ValueError):
-    raise ValueError('Cannot encode pathname as %s: %r' % (filesystem_encoding, pathname))
+    os.lstat
+  except AttributeError:
+    os.lstat = os.stat  # Not needed in Python 2.6.
 
 
 def parse_recycle_bin_i_file(filename):
@@ -126,6 +156,7 @@ def parse_recycle_bin_i_file(filename):
     raise ValueError('Missing drive separator in deleted_pathname: %r' % deleted_pathname)
   deleted_pathname = os.path.join(*filter(None, (
       deleted_pathname[0].lower() + deleted_pathname[2:]).split('\\')))
+  #assert 0, [size, deletion_filetime, deleted_pathname]
   return size, deletion_filetime, deleted_pathname
 
 
@@ -176,6 +207,7 @@ def process_recycle_bin_pathname(pathname, restore_target_dir):
 
 
 def process_recursively(pathname, restore_target_dir):
+  #print([pathname])
   try:
     stat_obj = os.lstat(pathname_to_os(pathname))
   except OSError:
