@@ -191,8 +191,12 @@ def process_recursively(pathname, restore_target_dir):
 
 def main(argv):
   if len(argv) < 2 or argv[1] == '--help':
-    sys.stderr.write('Usage: %s <recycle-bin-dir>\n' % argv[0])
+    sys.stderr.write(
+        'Usage: %s [<flag> ...] <recycle-bin-dir>\nFlags:\n'
+        '--restore-target-dir=<dir>: Restore recycled files to here.\n'
+        % argv[0])
     sys.exit(1)
+  restore_target_dir = '.'
   i = 1
   while i < len(argv):
     arg = argv[i]
@@ -202,6 +206,8 @@ def main(argv):
       break
     elif arg == '--':
       break
+    elif arg.startswith('--restore-target-dir='):
+      restore_target_dir = pathname_from_argv(arg[arg.find('=') + 1:])
     else:
       sys.stderr.write('fatal: unknown command-line flag: %s\n' % arg)
       sys.exit(1)
@@ -213,7 +219,6 @@ def main(argv):
   if i != len(argv):
     sys.stderr.write('fatal: too many command-line arguments\n')
     sys.exit(1)
-  restore_target_dir = '.'
   process_recursively(pathname, restore_target_dir)
 
 
